@@ -4,7 +4,6 @@ import { Card } from './card.js'
 
 export class Deck {
   cards
-
   /**
    * 
    * @param {Card[]} cards 
@@ -33,6 +32,8 @@ export class Deck {
 
   get randomCard(){
     const randomIndex = getRandomInteger(this.cards.length - 1, 0)
+
+    console.log(this.cards.length)
     
     const [ cardSliced ] = this.cards.splice(randomIndex, 1)
 

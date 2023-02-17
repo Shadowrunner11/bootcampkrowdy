@@ -4,7 +4,7 @@ export class Card {
   imageURL
   
   constructor(value, suit, imageURL){
-    if(!Card.isValidValue(value))
+    if(!this.isValidValue(value))
       throw new Error("no es una carta valida")
 
     this.value = value
@@ -20,10 +20,15 @@ export class Card {
    * 
    * @param {number} value 
    */
-  static isValidValue(value){
+  isValidValue(value){
     if(typeof value !== "number")
       throw new Error("no es un numero")
-    
+
+    return Card.isValidClassicValue(value)
+  }
+
+  static isValidClassicValue(value){
     return Number.isInteger(value) && value > 0 && value < 14
   }
 }
+

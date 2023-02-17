@@ -1,47 +1,84 @@
+/// <reference types="./global" />
+
 import { Deck } from "./controllers/deck.js";
-import { Player } from "./controllers/player.js";
-// sacar una carta
-// si la cantidad total en la mesa del jugador es mator, perdio
-// si la cantidad no es mayor q 21, aun no pierde
-// y se le pueda dar la opcion de quedar ahi y seguir sacando
-// si decide parar, se compara su total con el de la mesa
-// si la mesa tiene mas, entonces pierde
-// la mesa tambien saca en cada turno
+import { Game } from "./controllers/game.js";
 
-const legalDeck = Deck.defaultDeck()
 
-const [ table, player ] = [ 
-  new Player(legalDeck), 
-  new Player(legalDeck) 
-]
+// mesa saca dos cartas
+// y al mismo tiempo se le da al jugador dos cartas
 
-const [ buttonPullCard, pointsTable, pointsPlayer, status ] = [
+// si el jugador con sus dos cartas ya llego 21, es un blackjack, es decir gano
+// y acaba el juego
+
+
+// si se pasa de 21 las dos primeras cartas, pierdo el juego
+
+// en cualquier caso, acaba el juego, sino
+
+
+// jugador tiene dos opciones: pedir o parar
+
+// si el jugador decide parar, enotnces la mesa saca cartas una a una
+// hasta que gane al puntaje del jugador o pase de 21
+
+const [ 
+  buttonPullCard,
+  buttonStop,
+  pointsTable,
+  pointsPlayer,
+  status,
+  restartButton
+] = [
   '[data-button="pull-card"]',
+  '[data-button="stop"]',
   '[data-text="points-table"]',
   '[data-text="points-player"]',
-  '[data-text="status"]'
-].map(selector => document.body.querySelector(selector))
+  '[data-text="status"]',
+  '[data-button="restart"]'
+].map( selector => document.querySelector(selector))
 
-console.log(buttonPullCard)
+let game = new Game(
+  Deck.defaultDeck(), 
+  [pointsPlayer, pointsTable]
+)
+
+window.game = game
+
+game.start()
+  .then(()=>{
+    status.textContent = game.status
+  })
+
 
 buttonPullCard?.addEventListener("click", ()=>{
-  pullLocalCard(table, pointsTable)
-  pullLocalCard(player, pointsPlayer)
+  if(game.isOver)
+    return 
 
-  if(table.points > 21 || player.points === 21){
-    status.textContent = 'ganaste';
+  game.playerPlays()
 
-    return; 
-  }
-
-  if(player.points > 21 || table.points === 21){
-    status.textContent = 'perdiste';
-
-    return; 
-  }
+  status.textContent = game.status
 })
 
-function pullLocalCard(player, textElement){
-  player.pullCard()
-  textElement.textContent = player.points
-}
+
+buttonStop?.addEventListener("click", async ()=>{
+  if(game.isOver)
+    return
+
+  await game.tablePlays()
+
+  status.textContent = game.status
+})
+
+
+restartButton?.addEventListener("click", ()=>{
+  game = new Game( 
+    Deck.defaultDeck(), 
+    [pointsPlayer, pointsTable]
+  )
+
+  game.start()
+    .then(()=>{
+      status.textContent = game.status
+    })
+})
+
